@@ -1,0 +1,26 @@
+#!/bin/sh
+
+if [ "$#" -ne "2" ]
+then
+	cat <<-tac
+		USAGE: $0 <proxy> <hostname>
+
+		Provides an SSH ProxyCommand to emulate ProxyJump for proxies disallowing
+		interactive login.  This is necessary because OpenSSH provides no configuration file
+		directive corresponding to the -N command-line switch.
+	tac
+	exit 1
+fi
+
+port="1024"
+while fuser -s "$port/tcp"
+do
+	port="$((port + 1))"
+done
+
+trap "fuser -ks -INT '$port/tcp'" EXIT
+trap exit HUP
+trap exit INT
+
+ssh -NfL"$port:$2:ssh" "$1"
+nc localhost "$port"
