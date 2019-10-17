@@ -1,0 +1,29 @@
+#!/bin/sh
+
+match() {
+	[ "$#" -ne "1" ] || echo -- "$1" | grep -vF \* >/dev/null
+}
+
+if ! match */Cargo.toml
+then
+	cat <<-tac
+		USAGE: $0 [key=value]...
+
+		Run from within a cargo vendor directory to convert it into a Cargo.toml file.
+
+		This is useful for creating a local dummy project that can be used to:
+		 * Generate a local version of the docs.rs Web service.
+		 * Prefetch a representative sample of packages for use in Cargo's offline mode.
+	tac
+	exit 1
+fi
+
+[ "$#" -ne "0" ] && echo "[package]"
+for pair in "$@"
+do
+	echo "$pair" | sed 's/=\(.*\)/= "\1"/'
+done
+[ "$#" -ne "0" ] && echo
+
+echo "[dependencies]"
+grep -m1 '^\<version\>' */Cargo.toml | sed '/[[:digit:]].*\/.*=/d;s/\/[^ =]\+\([^#]\+\).*/\1/'
