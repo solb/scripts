@@ -26,4 +26,4 @@ done
 [ "$#" -ne "0" ] && echo
 
 echo "[dependencies]"
-grep -m1 '^\<version\>' */Cargo.toml | sed '/[[:digit:]].*\/.*=/d;s/\/[^ =]\+\([^#]\+\).*/\1/'
+grep -m1 '^\<version\>' */Cargo.toml | sed '/[[:digit:]].*\/.*=/d;s/\/[^ =]\+\([^"]\+\)"\([^#]\+\).*/\1"=\2/'
